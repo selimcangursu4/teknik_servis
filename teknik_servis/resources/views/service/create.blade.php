@@ -141,9 +141,9 @@
                     <label class="form-label"><b>Referans Durumu:</b></label>
                     <select class="form-select" required id="referance_id" aria-label="Seçiniz..">
                         <option>Seçiniz...</option>
-                        <option value="1">Normal</option>
-                        <option value="2">Acil</option>
-                        <option value="3">Yüksek</option>
+                          @foreach($users as $user)
+                           <option value="{{$user->id}}">{{$user->name}}</option>
+                         @endforeach
                       </select>
                   </div>
             </div>

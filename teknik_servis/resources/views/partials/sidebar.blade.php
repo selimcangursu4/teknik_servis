@@ -12,7 +12,7 @@
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" href="pages-profile.html">
+        <a class="sidebar-link" href="{{route('service.create')}}">
           <i class="align-middle" data-feather="repeat"></i>
           <span class="align-middle">Yeni Servis Kaydı Oluştur</span>
         </a>

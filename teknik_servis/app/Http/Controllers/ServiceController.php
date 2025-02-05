@@ -6,14 +6,17 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\ProductColor;
 use App\Models\FaultCategories;
+use App\Models\User;
 
 class ServiceController extends Controller
 {
     // YENİ SERVİS KAYDI EKLE SAYFASI
     public function create(){
-        $products = Product::all();
+
+        $users           = User::all();
+        $products        = Product::all();
         $faultCategories = FaultCategories::all();
-        return view('service.create',compact('products','faultCategories'));
+        return view('service.create',compact('products','faultCategories','users'));
     }
 
     // YENİ SERVİS KAYDI EKLE İŞLEMİ
