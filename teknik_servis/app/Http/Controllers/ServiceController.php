@@ -14,6 +14,14 @@ use App\Models\Service;
 
 class ServiceController extends Controller
 {
+
+    // TEKNİK SERVİS KAYITLARI SAYFASI
+
+    public function index(){
+        return view('service.index');
+    }
+
+
     // YENİ SERVİS KAYDI EKLE SAYFASI
     public function create(){
 
@@ -72,5 +80,7 @@ class ServiceController extends Controller
     
         return response()->json(['districts' => $districts]);
     }
+
+
     
 }
