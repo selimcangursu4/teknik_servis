@@ -43,9 +43,10 @@
                     <label class="form-label"><b>Şehir:</b></label>
                     <select class="form-select" id="city_id" required aria-label="Seçiniz...">
                         <option>Seçiniz..</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
+                         @foreach($cities as $city)
+                         <option value="{{$city->id}}">{{$city->sehiradi}}</option>
+                         @endforeach
+
                       </select>
                   </div>
             </div>
@@ -53,10 +54,6 @@
                 <div class="mb-3">
                     <label class="form-label"><b>İlçe:</b></label>
                     <select class="form-select" required id="district_id" aria-label="Seçiniz..">
-                        <option>Seçiniz...</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
                       </select>
                   </div>
             </div>
@@ -114,7 +111,7 @@
                     <select class="form-select" required id="fault_category_id" aria-label="Seçiniz..">
                         <option>Seçiniz...</option>
                           @foreach($faultCategories as $faultCategory)
-                        <option value="{{$faultCategory->id}}">{{$faultCategory->name}}</option>
+                           <option value="{{$faultCategory->id}}">{{$faultCategory->name}}</option>
                         @endforeach
                       </select>
                   </div>
@@ -139,7 +136,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label"><b>Referans Durumu:</b></label>
-                    <select class="form-select" required id="referance_id" aria-label="Seçiniz..">
+                    <select class="form-select"  id="referance_id" aria-label="Seçiniz..">
                         <option>Seçiniz...</option>
                           @foreach($users as $user)
                            <option value="{{$user->id}}">{{$user->name}}</option>
@@ -148,7 +145,7 @@
                   </div>
             </div>
             <div class="col-md-12">
-                <button id="save" class="btn btn-primary float-end">Yeni Servis Kaydı Oluştur</button>
+                <button type="button" id="save" class="btn btn-primary float-end">Yeni Servis Kaydı Oluştur</button>
             </div>
         </div>
       </form>
@@ -208,12 +205,29 @@
                 if(response.success)
                 {
                     console.log(response.message);
-                }else{
+                    Swal.fire({
+                     icon:"success",
+                     title: response.message,
+                     showDenyButton: false,
+                     showCancelButton: true,
+                     confirmButtonText: "Tamam",
+                    }).then((result) => {
+                    if (result.isConfirmed) {
+                      location.reload();
+                    } 
+                  });
+                  }else{
                     console.log(response.message);
-                }
-                }
-            })
-        })
+                    Swal.fire({
+                    position: "top-center",
+                    icon: "error",
+                    title: response.message,
+                    showConfirmButton: true,
+                    });
+                  }
+                 }
+               })
+              })
 
         // Ürüne Göre Renklerin Listelenmesi
         $('#product_id').change(function(e) {
@@ -232,6 +246,27 @@
              });
              $('#product_color_id').html(options);
             }
+        });
+       });
+       // İle Göre İlçelerin Listelenmesi
+       $('#city_id').change(function(e){
+        e.preventDefault();
+        let cityId = $(this).val();
+
+         $.ajax({
+           type: "GET",
+           url: "{{ route('getDistricts') }}",
+           data: {
+            _token: '{{ csrf_token() }}',
+            cityId: cityId
+           },
+           success: function(response) {
+            let options = '';
+            $.each(response.districts, function(index, district){
+                options += '<option value="' + district.id + '">' + district.ilceadi + '</option>';
+            });
+            $('#district_id').html(options);
+           }
         });
        });
     })

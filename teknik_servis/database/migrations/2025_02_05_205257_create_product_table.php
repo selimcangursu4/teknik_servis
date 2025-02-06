@@ -18,7 +18,6 @@ return new class extends Migration
             $table->integer('brand_id')->nullable();
             $table->string('quantity');
             $table->string('price');
-            $table->integer('color_id');
             $table->timestamps();
         });
     }
