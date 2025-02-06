@@ -10,57 +10,73 @@
         <div class="row">
             <div class="col-md-3">
                 <div class="mb-3">
-                    <small class="form-label"><b>Servis Numarası:</b></small>
-                    <input type="text" class="form-control" id="search-service-id" name="search-service-id">
+                    <label class="form-label"><b>Servis Numarası:</b></label>
+                    <input type="text" class="form-control" id="search-service-id" name="search-service-id" placeholder="Servis Numarası Giriniz..">
                   </div>
             </div>
             <div class="col-md-3">
                 <div class="mb-3">
-                    <small class="form-label"><b>Müşteri Adı Soyadı:</b></small>
-                    <input type="text" class="form-control" id="search-service-fullname" name="search-service-fullname">
+                    <label class="form-label"><b>Müşteri Adı Soyadı:</b></label>
+                    <input type="text" class="form-control" id="search-service-fullname" name="search-service-fullname" placeholder="Müşteri Ad Soyad Giriniz...">
                   </div>
             </div>
             <div class="col-md-3">
                 <div class="mb-3">
-                    <small  class="form-label"><b>Cep Telefon Numarası:</b></small>
-                    <input type="text" class="form-control" id="search-service-phone" name="search-service-phone">
+                    <label  class="form-label"><b>Cep Telefon Numarası:</b></label>
+                    <input type="text" class="form-control" id="search-service-phone" name="search-service-phone" placeholder="Cep Telefon Numarası Giriniz...">
                   </div>
             </div>
             <div class="col-md-3">
                 <div class="mb-3">
-                    <small class="form-label"><b>Imeı Numarası:</b></small>
-                    <input type="text" class="form-control" id="search-service-imei" name="search-service-imei">
+                    <label class="form-label"><b>Imeı Numarası:</b></label>
+                    <input type="text" class="form-control" id="search-service-imei" name="search-service-imei" placeholder="Cihaz İmei Numarasını Giriniz..">
                   </div>
             </div>
             <div class="col-md-3">
                 <div class="mb-3">
-                    <small class="form-label"><b>Ürün Modeli:</b></small>
-                    <input type="text" class="form-control" id="search-service-product-id" name="search-service-product-id">
+                    <label class="form-label"><b>Ürün Modeli:</b></label>
+                    <select class="form-select" id="search-service-product-id" name="search-service-product-id" aria-label="Seçiniz..">
+                      <option>Seçiniz...</option>
+                      @foreach($products as $product)
+                      <option value="{{$product->id}}">{{$product->name}}</option>
+                      @endforeach
+                    </select>
                   </div>
             </div>
             <div class="col-md-3">
                 <div class="mb-3">
-                    <small class="form-label"><b>Ürün Durumu:</b></small>
-                    <input type="text" class="form-control" id="search-service-product-status-id" name="search-service-product-status-id">
+                    <label class="form-label"><b>Ürün Durumu:</b></label>
+                    <select class="form-select" id="search-service-product-status-id" name="search-service-product-status-id" aria-label="Seçiniz..">
+                      <option>Seçiniz...</option>
+                      @foreach($productStatus as $status)
+                      <option value="{{$status->id}}">{{$status->name}}</option>
+                      @endforeach
+                    </select>
+                 
                   </div>
             </div>
             <div class="col-md-3">
                 <div class="mb-3">
-                    <small class="form-label"><b>Temsilci:</b></small>
-                    <input type="text" class="form-control" id="search-service-referance-id" name="search-service-referance-id">
+                    <label class="form-label"><b>Temsilci:</b></label>
+                    <select class="form-select" id="search-service-referance-id" name="search-service-referance-id" aria-label="Seçiniz..">
+                      <option>Seçiniz...</option>
+                      @foreach($users as $user)
+                      <option value="{{$user->id}}">{{$user->name}}</option>
+                      @endforeach
+                    </select>
                   </div>
             </div> 
             <div class="col-md-3">
                 <div class="mb-3">
-                    <small class="form-label"><b>Servis Tarih Aralığı:</b></small>
+                    <label class="form-label"><b>Servis Tarih Aralığı:</b></label>
                     <div class="input-group mb-3">
                         <input type="date" class="form-control" id="search-service-start-date" name="search-service-start-date" aria-describedby="basic-addon1">
                         <input type="date" class="form-control" id="search-service-end-date" name="search-service-end-date" aria-describedby="basic-addon1">
                       </div> 
                   </div>
-            </div>
+              </div>
             <div class="col-md-12">
-                <button class="btn btn-warning float-end">Sonuçları Detaylı Filtrele</button>
+                <button type="button" id="filterServiceButton" class="btn btn-warning float-end">Sonuçları Detaylı Filtrele</button>
             </div>
         </div>
        </form>
@@ -71,7 +87,7 @@
       <h5>Müşteri ve Veri Yönetimi</h5>
     </div>
     <div class="card-body">
-        <table class="table table-striped table-hover">
+        <table class="table table-striped table-hover" id="myTable">
             <thead>
               <tr>
                 <th scope="col">#</th>
@@ -81,22 +97,63 @@
                 <th scope="col">İmei</th>
                 <th scope="col">Cihaz Durumu</th>
                 <th scope="col">Servis Tarihi</th>
-                <th></th>
+                <th scope="col"></th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td scope="row">1</td>
-                <td>Selimcan Gürsu</td>
-                <td>5550162190</td>
-                <td>Wiky Watch 4G</td>
-                <td>355800110104472</td>
-                <td>Servise Alındı	</td>
-                <td>10/02/2023</td>
-                <td><button class="btn btn-primary">Detay</button></td>
-              </tr>
             </tbody>
           </table>
     </div>
   </div>
+  <script>
+   $(document).ready(function(){
+    let table = new DataTable('#myTable', {
+        serverSide: true,
+        processing: true,
+        ajax: {
+            type: "GET",
+            url: "/service/fetch",
+            data: function(d){
+                d.search_service_id                = $('#search-service-id').val();
+                d.search_service_fullname          = $('#search-service-fullname').val();
+                d.search_service_phone             = $('#search-service-phone').val();
+                d.search_service_imei              = $('#search-service-imei').val();
+                d.search_service_product_id        = $('#search-service-product-id').val();
+                d.search_service_product_status_id = $('#search-service-product-status-id').val();
+                d.search_service_referance_id      = $('#search-service-referance-id').val();
+                d.search_service_start_date        = $('#search-service-start-date').val();
+                d.search_service_end_date          = $('#search-service-end-date').val();
+            }
+        },
+        columns: [
+            { data: 'id', name: 'id' },
+            { data: 'fullname', name: 'fullname' },
+            { data: 'phone', name: 'phone' },
+            { data: 'productName', name: 'productName' },
+            { data: 'imei', name: 'imei' },
+            { data: 'process_status_id', name: 'process_status_id' },
+            { 
+                data: 'created_at', 
+                name: 'created_at', 
+                render: function(data) {
+                    return moment(data, "YYYY-MM-DD HH:mm:ss").format("DD/MM/YYYY HH:mm:ss");
+                } 
+            },
+            { 
+                data: 'action', 
+                name: 'action',
+                render: function(data, type, row) {
+                    return `<a href="#" class="btn btn-primary btn-sm">İncele</a>`;
+                }
+            }
+        ]
+    });
+    // Filtreleme Butonuna Basıldığında
+    $('#filterServiceButton').click(function(e){
+      e.preventDefault();
+      table.draw();
+    })
+});
+
+  </script>
 @endsection

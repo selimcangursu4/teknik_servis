@@ -18,7 +18,7 @@
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" href="pages-sign-in.html">
+        <a class="sidebar-link" href="{{route('service.index')}}">
           <i class="align-middle" data-feather="book-open"></i>
           <span class="align-middle">Teknik Servis Kayıtları</span>
         </a>

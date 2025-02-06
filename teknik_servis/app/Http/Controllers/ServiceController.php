@@ -10,17 +10,22 @@ use App\Models\User;
 use App\Models\Cities;
 use App\Models\District;
 use App\Models\Service;
+use App\Models\ProductStatus;
+use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\DB;
 
 
 class ServiceController extends Controller
 {
 
     // TEKNİK SERVİS KAYITLARI SAYFASI
-
     public function index(){
-        return view('service.index');
-    }
 
+        $users         = User::all();
+        $products      = Product::all();
+        $productStatus = ProductStatus::all();
+        return view('service.index',compact('products','productStatus','users'));
+    }
 
     // YENİ SERVİS KAYDI EKLE SAYFASI
     public function create(){
@@ -63,7 +68,6 @@ class ServiceController extends Controller
         }
     }
     
-
     // ÜRÜNE GÖRE RENKLERİN LİSTELENMESİ
     public function getProductColors(Request $request){
         $product_id = $request->input('product_id');
@@ -71,7 +75,6 @@ class ServiceController extends Controller
         return response()->json(['colors' => $colors]);
     }
 
-    
     // İLE GÖRE İLÇELERIN LİSTELENMESİ
     public function getDistricts(Request $request)
     {
@@ -81,6 +84,44 @@ class ServiceController extends Controller
         return response()->json(['districts' => $districts]);
     }
 
+    // SERVİS ÜRÜNLERİNİN SERVERSİDE İLE DATATABLEDE LİSTELENMESİ
+    public function fetch(Request $request)
+    {
+        $query = DB::table('service')
+        ->join('product', 'product.id', '=', 'service.product_id')
+        ->select('service.*', 'product.name as productName')->get();
+    
+        if ($request->filled('search_service_id')) {
+            $query->where('service.id', '=', $request->input('search_service_id'));
+        }
+        if ($request->filled('search_service_fullname')) {
+            $query->where('service.fullname', 'LIKE', '%' . $request->input('search_service_fullname') . '%');
+        }
+        if ($request->filled('search_service_phone')) {
+            $query->where('service.phone', '=', $request->input('search_service_phone'));
+        }
+        if ($request->filled('search_service_imei')) {
+            $query->where('service.imei', '=', $request->input('search_service_imei'));
+        }
+        if ($request->filled('search_service_product_id')) {
+            $query->where('service.product_id', '=', $request->input('search_service_product_id'));
+        }
+        if ($request->filled('search_service_product_status_id')) {
+            $query->where('service.process_status_id', '=', $request->input('search_service_product_status_id'));
+        }
+        if ($request->filled('search_service_referance_id')) {
+            $query->where('service.referance_id', '=', $request->input('search_service_referance_id'));
+        }
+        if ($request->filled('search_service_start_date')) {
+            $query->whereDate('service.created_at', '>=', $request->input('search_service_start_date'));
+        }
+        if ($request->filled('search_service_end_date')) {
+            $query->whereDate('service.created_at', '<=', $request->input('search_service_end_date'));
+        }
+    
+        return DataTables::of($query)->make(true);
+    }
+    
 
     
 }

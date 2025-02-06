@@ -12,4 +12,5 @@ Route::prefix('/service')->group(function(){
     Route::post('/store',[ServiceController::class,'store'])->name('service.store');
     Route::get('/product/change/color',[ServiceController::class,'getProductColors'])->name('getProductColors');
     Route::get('/get/district',[ServiceController::class,'getDistricts'])->name('getDistricts');
+    Route::get('/fetch',[ServiceController::class,'fetch'])->name('service.fetch');
 });
