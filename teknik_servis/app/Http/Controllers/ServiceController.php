@@ -27,9 +27,50 @@ class ServiceController extends Controller
         return view('service.index',compact('products','productStatus','users'));
     }
 
+
+    // TEKNİK SERVİS KAYIT DETAY SAYFASI
+    public function edit(Request $request , $id)
+    {
+        $service    = Service::where('service.id', $id)
+        ->join('product', 'product.id', '=', 'service.product_id')
+        ->join('product_colors', 'product_colors.id', '=', 'service.product_color_id')
+        ->join('users', 'users.id', '=', 'service.referance_id')
+        ->join('fault_categories', 'fault_categories.id', '=', 'service.fault_category_id')
+        ->join('product_status','product_status.id','=','service.process_status_id')
+        ->select('service.*', 'product.name as productName','product_colors.name as productColor',
+        'users.name as userName','fault_categories.name as faultCategory','product_status.name as productStatus')
+        ->first();
+        $cities     = Cities::all();
+        $districts  = District::all();
+        $products        = Product::all();
+
+        return view('service.edit',compact('service','cities','districts','products'));
+    }
+
+
+    // SERVİS KAYDI DETAY BİLGİLERİNİ GÜNCELLEME
+    public function update(Request $request){
+        try {
+            $record = Service::where('id','=',$request->input('service_id'));
+            $record->update([
+                'fullname'=>$request->input('fullname'),
+                'land_phone'=>$request->input('land_phone'),
+                'phone'=>$request->input('phone'),
+                'imei'=>$request->input('imei'),
+                'address'=>$request->input('address'),
+                'city_id'=>$request->input('city_id'),
+                'district_id'=>$request->input('district_id'),
+                'product_id'=>$request->input('product_id'),
+                'product_color_id'=>$request->input('product_color_id'),
+            ]);
+            return response()->json(['success'=>true,'message'=>'Kayıt Güncellendi']);
+        } catch (Exception $error) {
+            return response()->json(['success'=>true,'message'=>'Bilinmeyen Bir Hata' . ' ' . $error->getMessage()]);
+        }
+    }
+
     // YENİ SERVİS KAYDI EKLE SAYFASI
     public function create(){
-
         $users           = User::all();
         $cities          = Cities::all();
         $products        = Product::all();
@@ -61,7 +102,6 @@ class ServiceController extends Controller
             $service->user_id = 1;
             $service->process_status_id = 1;
             $service->save();
-    
             return response()->json(['success'=>true,'message'=>'Servis Kaydı Başarıyla Oluşturuldu !']);
         } catch (Exception $error) {
             return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata' . ' ' . $error->getMessage()]);
@@ -89,7 +129,8 @@ class ServiceController extends Controller
     {
         $query = DB::table('service')
         ->join('product', 'product.id', '=', 'service.product_id')
-        ->select('service.*', 'product.name as productName')->get();
+        ->join('product_status','product_status.id','=','service.process_status_id')
+        ->select('service.*', 'product.name as productName','product_status.name as productStatus')->get();
     
         if ($request->filled('search_service_id')) {
             $query->where('service.id', '=', $request->input('search_service_id'));

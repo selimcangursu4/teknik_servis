@@ -110,6 +110,7 @@
     let table = new DataTable('#myTable', {
         serverSide: true,
         processing: true,
+        searching:false,
         ajax: {
             type: "GET",
             url: "/service/fetch",
@@ -131,7 +132,7 @@
             { data: 'phone', name: 'phone' },
             { data: 'productName', name: 'productName' },
             { data: 'imei', name: 'imei' },
-            { data: 'process_status_id', name: 'process_status_id' },
+            { data: 'productStatus', name: 'productStatus' },
             { 
                 data: 'created_at', 
                 name: 'created_at', 
@@ -143,7 +144,7 @@
                 data: 'action', 
                 name: 'action',
                 render: function(data, type, row) {
-                    return `<a href="#" class="btn btn-primary btn-sm">İncele</a>`;
+                    return `<a href="/service/edit/${row.id}" class="btn btn-primary btn-sm">İncele</a> <button class='btn btn-danger btn-sm'>Sil</button>`;
                 }
             }
         ]

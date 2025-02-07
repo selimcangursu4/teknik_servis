@@ -32,6 +32,7 @@ return new class extends Migration
             $table->integer('referance_id')->nullable();
             $table->integer('user_id')->nullable();
             $table->integer('process_status_id')->nullable();
+            $table->datetime('completion_date')->nullable();
             $table->timestamps();
         });
     }
