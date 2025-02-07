@@ -17,6 +17,8 @@ Route::prefix('/service')->group(function(){
     Route::get('/fetch',[ServiceController::class,'fetch'])->name('service.fetch');
     Route::get('/edit/{id}',[ServiceController::class,'edit'])->name('service.edit');
     Route::post('/update',[ServiceController::class,'update'])->name('service.update');
+    Route::post('/priority/request',[ServiceController::class,'priorityRequest'])->name('service.priorityRequest');
+    Route::post('/invoice/update',[ServiceController::class,'updateWarrantyStatus'])->name('service.updateWarrantyStatus');
 });
 
 // Sms Gönder

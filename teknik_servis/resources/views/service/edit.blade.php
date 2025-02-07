@@ -135,13 +135,15 @@
                       </tr>
                     </thead>
                     <tbody>
+                      @foreach($service_activities as $activities)
                       <tr>
-                        <th scope="row">1</th>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                        <td>asdas</td>
+                        <td scope="row">{{$activities->id}}</td>
+                        <td>{{$activities->detail}}</td>
+                        <td>{{$activities->user_id}}</td>
+                        <td>{{$activities->status_id}}</td>
+                        <td>{{$activities->created_at}}</td>
                       </tr>
+                      @endforeach  
                     </tbody>
                   </table>
             </div>
@@ -171,7 +173,9 @@
               <button type="button" class="btn btn-warning w-100 mt-1" data-bs-toggle="modal" data-bs-target="#send_sms_modal">
                 Sms Gönder
               </button>
-              <button class="w-100 btn btn-danger mt-1">Servis Öncelik Talebi</button>
+              <button type="button" class="btn btn-danger mt-1 w-100" data-bs-toggle="modal" data-bs-target="#service_priority_request">
+                Servis Öncelik Talebi
+              </button>
               <button class="w-100 btn btn-secondary mt-1">Teknik Servis Formu Yazdır</button>
             </div>
           </div>
@@ -181,7 +185,9 @@
             </div>
             <div class="card-body">
               <small class="card-text">İlgili Cihazın Fatura ve Garanti Durumunu Bu Alandan Değiştrebilirsiniz.</small>
-              <a href="#" class="btn btn-success w-100">Garanti Durumunu Güncelle</a>
+              <button type="button" class="btn btn-secondary mt-1" data-bs-toggle="modal" data-bs-target="#invoice_update">
+                Fatura ve Garanti Durumunu Güncelle
+              </button>
             </div>
           </div>
        </div>
@@ -321,6 +327,77 @@
         </div>
       </div>
     </div>
+    <!-- Servis Öncelik Talebi Modal -->
+    <div class="modal fade" id="service_priority_request" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Servis Öncelik Talebi Oluştur</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              @csrf
+              <div class="mb-3">
+                <label class="form-label"><b>Servis Numarası</b></label>
+                <input type="text" class="form-control" id="priority_service_id" disabled value="{{$service->id}}">
+              </div>
+              <div class="mb-3">
+                <label class="form-label"><b>Öncelik Derecesi</b></label>
+                <select class="form-select" id="priority_degree" aria-label="Seçiniz...">
+                  <option selected>Seçiniz...</option>
+                  <option value="1">Normal</option>
+                  <option value="2">Yüksel</option>
+                  <option value="3">Acil</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label"><b>Öncelik Talep Detayı</b></label>
+                <textarea class="form-control" id="priority_detail" rows="5"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" id="sendPriorityRequestButton" class="btn btn-primary">Öncelik Talebi Gönder</button>
+              </div>
+            </form>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Fatura ve Garanti Bilgisi Güncelle Modal -->
+    <div class="modal fade" id="invoice_update" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Fatura ve Garanti Durumu Güncelle</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              @csrf
+              <div class="mb-3">
+                <label class="form-label">Fatura Tarihi</label>
+                <input type="date" class="form-control" id="invoice_date" value="{{$service->invoice_date}}" >
+              </div>
+              <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Garanti Durumu</label>
+                <select class="form-select" id="warranty_status_id" aria-label="Seçiniz...">
+                  <option selected>Seçiniz...</option>
+                  <option value="1" {{$service->warranty_status_id == 1 ? 'selected' : ''}}>Garanti Var</option>
+                  <option value="2" {{$service->warranty_status_id == 2 ? 'selected' : ''}}>Garanti Yok</option>
+                  <option value="3" {{$service->warranty_status_id == 3 ? 'selected' : ''}}>Belirlenemedi</option>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" id="invoiceUpdateButton" class="btn btn-primary">Güncelle</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
     <script>
     $(document).ready(function(){
         $('#myTable').DataTable({
@@ -385,24 +462,70 @@
             }
           })
         });
-        // Sms Gönder Modülü 
+        // SMS Gönder
         $('#sendSmsButton').click(function(e){
-          e.preventDefault();
+         e.preventDefault();
+ 
+         let smsPhone   = $('#sms_phone').val();
+         let smsMessage = $('#sms_message').val();
+         let serviceId  = "{{$service->id}}";
 
-          let smsPhone   = ('#sms_phone').val();
-          let smsMessage = $('#sms_message').val();
-          let serviceId  = "{{$service->id}}";
+         $.ajax({
+          type: "POST",
+          url: "{{ route('sms.send') }}",
+          data: {
+            _token: "{{ csrf_token() }}",
+            serviceId: serviceId,
+            smsPhone: smsPhone,
+            smsMessage: smsMessage
+          },
+          success: function(response) {
+            if(response.success) {
+                console.log(response.message);
+                Swal.fire({
+                    icon: "success",
+                    title: response.message,
+                    confirmButtonText: "Tamam"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            } else {
+                console.log(response.message);
+                Swal.fire({
+                    position: "top-center",
+                    icon: "error",
+                    title: response.message,
+                    showConfirmButton: true
+                });
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+            Swal.fire({
+                icon: "error",
+                title: "Beklenmedik bir hata oluştu!",
+                text: xhr.responseText
+             });
+            }
+           });
+          });
+        // Servis Öncelik Talebi Modülü
+        $('#sendPriorityRequestButton').click(function(e){
+          let priority_service_id = $('#priority_service_id').val();
+          let priority_degree     = $('#priority_degree').val();
+          let priority_detail     = $('#priority_detail').val();
           $.ajax({
-            type:"POST",
-            url:"{{route('sms.send')}}",
+            type:"post",
+            url:"{{route('service.priorityRequest')}}",
             data:{
               _token:"{{ csrf_token() }}",
-              serviceId:serviceId
-              smsPhone:smsPhone,
-              smsMessage:smsMessage
+              priority_service_id:priority_service_id,
+              priority_degree:priority_degree,
+              priority_detail:priority_detail
             },
-            success:function(response)
-            {
+            success:function(response){
             if(response.success)
             {
               console.log(response.message);
@@ -429,6 +552,50 @@
             }
           })
         })
+        // Fatura ve Garanti Durumu Güncelle
+        $('#invoiceUpdateButton').click(function(e){
+          e.preventDefault();
+
+          let invoice_date       = $('#invoice_date').val();
+          let warranty_status_id = $('#warranty_status_id').val();
+          let serviceId          = "{{$service->id}}";
+
+          $.ajax({
+            type:"post",
+            url:"{{route('service.updateWarrantyStatus')}}",
+            data:{
+              _token:"{{ csrf_token() }}",
+              serviceId:serviceId,
+              invoice_date:invoice_date,
+              warranty_status_id:warranty_status_id
+            },
+            success:function(response){
+              if(response.success){
+                console.log(response.message);
+                Swal.fire({
+                icon:"success",
+                title: response.message,
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: "Tamam",
+                 }).then((result) => {
+                  if (result.isConfirmed) {
+                    location.reload();
+                  } 
+                });
+              }else{
+                console.log(response.message);
+                Swal.fire({
+                position: "top-center",
+                icon: "error",
+                title: response.message,
+                showConfirmButton: true,
+               });
+              }
+            }
+          })
+        })
+        // Teknik Servis Formu Yazdır
     })
     </script>
 @endsection

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\SmsLog;
 use App\Models\ServiceActivities;
-
+use Exception;
 
 
 class SmsLogController extends Controller
@@ -15,13 +15,13 @@ class SmsLogController extends Controller
         try {
 
             $sms = new SmsLog();
-            $sms->phone = $request->phone;
-            $sms->message = $request->message;
+            $sms->phone = $request->input('smsPhone');
+            $sms->message = $request->input('smsMessage');
             $sms->save();
 
             $activity = new ServiceActivities();
-            $activity->service_id = $request->serviceId;
-            $activity->detail = `Sms Gönderildi ! Gönderilen Sms İçeriği : $request->message`;
+            $activity->service_id = $request->input('serviceId');
+            $activity->detail = "Sms Gönderildi ! Gönderilen Sms İçeriği : " . $request->input('smsMessage');
             $activity->user_id = 1;
             $activity->status_id = 11;
             $activity->save();

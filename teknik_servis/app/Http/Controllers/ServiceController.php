@@ -11,7 +11,9 @@ use App\Models\Cities;
 use App\Models\District;
 use App\Models\Service;
 use App\Models\ProductStatus;
+use App\Models\ServicePriorityRequest;
 use Yajra\DataTables\DataTables;
+use App\Models\ServiceActivities;
 use Illuminate\Support\Facades\DB;
 
 
@@ -40,11 +42,12 @@ class ServiceController extends Controller
         ->select('service.*', 'product.name as productName','product_colors.name as productColor',
         'users.name as userName','fault_categories.name as faultCategory','product_status.name as productStatus')
         ->first();
-        $cities     = Cities::all();
-        $districts  = District::all();
-        $products        = Product::all();
+        $cities             = Cities::all();
+        $districts          = District::all();
+        $products           = Product::all();
+        $service_activities = ServiceActivities::where('service_id','=',$service->id)->get();
 
-        return view('service.edit',compact('service','cities','districts','products'));
+        return view('service.edit',compact('service','cities','districts','products','service_activities'));
     }
 
 
@@ -161,6 +164,45 @@ class ServiceController extends Controller
         }
     
         return DataTables::of($query)->make(true);
+    }
+
+    // SERVİS ÖNCELİK TALEBİ OLUŞTUR
+    public function priorityRequest(Request $request)
+    {
+        try {
+            
+            $priority = new ServicePriorityRequest();
+            $priority->service_id = $request->input('priority_service_id');
+            $priority->priority_degree_id = $request->input('priority_degree');
+            $priority->detail = $request->input('priority_detail');
+            $priority->user_id = 1;
+            $priority->status_id = 0;
+            $priority->save();
+
+            return response()->json(['success'=>true,'message'=>'Öncelik Talebi Oluşturuldu!']);
+            
+        } catch (Exception $error) {
+            return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata' .''. $error->getMessage()]);
+        }
+    }
+    
+    // SERVİSTEKİ ÜRÜNÜN FATURA VEYA GARANTİ DURUMUNU GÜNCELLEME
+    public function updateWarrantyStatus(Request $request)
+    {
+        try {
+            $service = Service::where('id', $request->input('serviceId'))->first();
+    
+            if (!$service) {
+                return response()->json(['success' => false, 'message' => 'Servis bulunamadı!']);
+            }
+            $service->invoice_date       = $request->input('invoice_date');
+            $service->warranty_status_id = $request->input('warranty_status_id');
+            $service->save();
+    
+            return response()->json(['success' => true, 'message' => 'Güncelleme Başarılı!']);
+        } catch (Exception $error) {
+            return response()->json(['success' => false, 'message' => 'Bilinmeyen Bir Hata: ' . $error->getMessage()]);
+        }
     }
     
 
