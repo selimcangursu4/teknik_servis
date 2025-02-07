@@ -168,7 +168,9 @@
               <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#detail_modal">
                 Detaylar
               </button>
-              <button class="w-100 btn btn-warning mt-1">Sms Gönder</button>
+              <button type="button" class="btn btn-warning w-100 mt-1" data-bs-toggle="modal" data-bs-target="#send_sms_modal">
+                Sms Gönder
+              </button>
               <button class="w-100 btn btn-danger mt-1">Servis Öncelik Talebi</button>
               <button class="w-100 btn btn-secondary mt-1">Teknik Servis Formu Yazdır</button>
             </div>
@@ -291,6 +293,34 @@
       </div>
      </div>
     </div>
+    <!-- Sms Gönder Modal -->
+    <div class="modal fade" id="send_sms_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Sms Gönder</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              @csrf
+              <div class="mb-3">
+                <label class="form-label"><b>Telefon Numarası</b></label>
+                <input type="text" class="form-control" id="sms_phone" disabled value="{{$service->phone}}">
+              </div>
+              <div class="mb-3">
+                <label class="form-label"><b>Mesaj</b></label>
+                <textarea class="form-control" id="sms_message" rows="5"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" id="sendSmsButton" class="btn btn-primary">Sms Gönder</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
     <script>
     $(document).ready(function(){
         $('#myTable').DataTable({
@@ -356,7 +386,49 @@
           })
         });
         // Sms Gönder Modülü 
+        $('#sendSmsButton').click(function(e){
+          e.preventDefault();
 
+          let smsPhone   = ('#sms_phone').val();
+          let smsMessage = $('#sms_message').val();
+          let serviceId  = "{{$service->id}}";
+          $.ajax({
+            type:"POST",
+            url:"{{route('sms.send')}}",
+            data:{
+              _token:"{{ csrf_token() }}",
+              serviceId:serviceId
+              smsPhone:smsPhone,
+              smsMessage:smsMessage
+            },
+            success:function(response)
+            {
+            if(response.success)
+            {
+              console.log(response.message);
+              Swal.fire({
+              icon:"success",
+              title: response.message,
+              showDenyButton: false,
+              showCancelButton: true,
+              confirmButtonText: "Tamam",
+               }).then((result) => {
+                if (result.isConfirmed) {
+                  location.reload();
+                } 
+              });
+            }else{
+              console.log(response.message);
+              Swal.fire({
+              position: "top-center",
+              icon: "error",
+              title: response.message,
+              showConfirmButton: true,
+             });
+            }
+            }
+          })
+        })
     })
     </script>
 @endsection

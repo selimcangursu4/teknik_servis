@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SmsLogController;
+
 
 Route::get('/dashboard',[DashboardController::class,'index'])->name('dashboard');
 
@@ -16,3 +18,6 @@ Route::prefix('/service')->group(function(){
     Route::get('/edit/{id}',[ServiceController::class,'edit'])->name('service.edit');
     Route::post('/update',[ServiceController::class,'update'])->name('service.update');
 });
+
+// Sms Gönder
+Route::post('/sms/send',[SmsLogController::class,'send'])->name('sms.send');
