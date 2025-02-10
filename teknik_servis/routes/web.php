@@ -19,6 +19,8 @@ Route::prefix('/service')->group(function(){
     Route::post('/update',[ServiceController::class,'update'])->name('service.update');
     Route::post('/priority/request',[ServiceController::class,'priorityRequest'])->name('service.priorityRequest');
     Route::post('/invoice/update',[ServiceController::class,'updateWarrantyStatus'])->name('service.updateWarrantyStatus');
+    Route::post('/check-imei',[ServiceController::class,'checkImei'])->name('checkImei');
+    Route::post('/getWarrantyAndInvoice',[ServiceController::class,'getWarrantyAndInvoice'])->name('getWarrantyAndInvoice');
 });
 
 // Sms Gönder

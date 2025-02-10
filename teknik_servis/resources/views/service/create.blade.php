@@ -86,6 +86,9 @@
                 <div class="mb-3">
                     <label class="form-label"><b>Seri Numarası:</b></label>
                     <input type="text" class="form-control" id="imei">
+                    <div class="alert alert-warning mt-2 d-flex align-items-center" role="alert" id="imeiCheckArea" style="display: none !important">
+                      <i class="fa-solid fa-triangle-exclamation"></i> <small id="imeiCheck"></small>
+                    </div>
                   </div>
             </div>
             <div class="col-md-6">
@@ -269,6 +272,53 @@
            }
         });
        });
+       // İmei Sorgulama  - Daha Önce Servise Gelip Gelmediği
+
+       $('#imei').change(function(e){
+        e.preventDefault();
+        let imei = $(this).val();
+
+        $.ajax({
+          type:"POST",
+          url:"{{route('checkImei')}}",
+          data:{
+            _token: '{{csrf_token()}}',
+            imei:imei
+          },
+          success:function(response){
+            if(response.success){
+              $('#imeiCheckArea').css('display', 'block');
+              $('#imeiCheck').html(response.message)
+            }else{
+              $('#imeiCheckArea').css('display', 'block');
+              $('#imeiCheck').html(response.message)
+            }
+          }
+        })
+       })
+       // İmei Bilgisine Göre Garanti Durumu ve Fatura Tarihi Güncellemesi
+       $('#imei').change(function(e){
+         e.preventDefault();
+         let imei = $(this).val();
+
+         $.ajax({
+          type:"POST",
+          url:"{{route('getWarrantyAndInvoice')}}",
+          data:{
+            _token: '{{csrf_token()}}',
+            imei: imei
+          },
+          success:function(response){
+          if(response.success)
+          {
+            $('#warranty_status_id').val(response.warranty_status_id)
+            $('#invoice_date').val(response.invoice_date);
+            $('#warranty_status_id').attr('disabled','true');
+            $('#invoice_date').attr('disabled','true');
+          }
+          }
+         })
+       })
     })
   </script>
 @endsection

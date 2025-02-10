@@ -12,6 +12,7 @@ use App\Models\District;
 use App\Models\Service;
 use App\Models\ProductStatus;
 use App\Models\ServicePriorityRequest;
+use App\Models\WarrantyRecord;
 use Yajra\DataTables\DataTables;
 use App\Models\ServiceActivities;
 use Illuminate\Support\Facades\DB;
@@ -84,6 +85,7 @@ class ServiceController extends Controller
     // YENİ SERVİS KAYDI EKLE İŞLEMİ
     public function store(Request $request){
         try {
+            // SERVİS KAYDI OLUŞTURMA
             $service = new Service();
             $service->fullname = $request->input('fullname');
             $service->phone = $request->input('phone');
@@ -105,6 +107,14 @@ class ServiceController extends Controller
             $service->user_id = 1;
             $service->process_status_id = 1;
             $service->save();
+
+            // GARANTİ KAYDI OLUŞTURMA
+            $warrantyStatus = new WarrantyRecord();
+            $warrantyStatus->imei = $service->imei;
+            $warrantyStatus->invoice_date = $service->invoice_date;
+            $warrantyStatus->warranty_status_id = $service->warranty_status_id;
+            $warrantyStatus->save();
+
             return response()->json(['success'=>true,'message'=>'Servis Kaydı Başarıyla Oluşturuldu !']);
         } catch (Exception $error) {
             return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata' . ' ' . $error->getMessage()]);
@@ -205,6 +215,32 @@ class ServiceController extends Controller
         }
     }
     
+    // İMEİ SORGULAMA - ÜRÜNÜN DAHA ÖNCE SERVİSE GELİP GELMEDİĞİ BİLGİSİ
+    public function checkImei(Request $request)
+    {
+        $service = Service::where('imei','=',$request->input('imei'))->first();
+
+        if($service)
+        {
+            return response()->json(['success' => true, 'message' => 'Bu İmeili Ürün Daha Önce Servise Gelmiştir.']);
+        }else{
+            return response()->json(['success' => false, 'message' =>'Bu Ürün İlk Defa Servise Gelmiştir!']);
+        }
+    }
+
+    // İMEİ İLE ÜRÜNÜN GARANTİ VE FATURA BİLGİSİNİ GİRİŞ EKRANINDA GÖSTERİMİ
+
+    public function getWarrantyAndInvoice(Request $request)
+    {
+        $warranty_record    = WarrantyRecord::where('imei','=',$request->input('imei'))->first();
+        $warranty_status_id = $warranty_record->warranty_status_id;
+        $invoice_date       = $warranty_record->invoice_date;
+
+        if($warranty_record)
+        {
+            return response()->json(['success'=>true , 'warranty_status_id'=>$warranty_status_id,'invoice_date'=>$invoice_date]);
+        }
+    }
 
     
 }

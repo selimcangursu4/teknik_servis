@@ -77,7 +77,6 @@
                         <th scope="row">Seri Numarası :</th>
                          <td>{{$service->imei}}</td>
                       </tr>
-
                       <tr>
                         <th scope="row">Garanti Durumu :</th>
                         @if($service->warranty_status_id == 1)
@@ -88,7 +87,6 @@
                          <td>Belirtilmedi</td>
                         @endif
                       </tr>
-
                       <tr>
                         <th scope="row">Temsilci Personel :</th>
                          <td>{{$service->userName}}</td>
@@ -111,7 +109,7 @@
                       </tr>
                       <tr>
                         <th scope="row">Tamamlanma Tarihi :</th>
-                         <td>Migration Fresh Atılması Gerek </td>
+                         <td>{{$service->completion_date}} </td>
                       </tr>
                     </tbody>
                   </table>
@@ -596,6 +594,8 @@
           })
         })
         // Teknik Servis Formu Yazdır
+
+        // Cihazı İşleme Al Butonu 
     })
     </script>
 @endsection
