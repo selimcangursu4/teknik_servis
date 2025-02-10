@@ -137,8 +137,8 @@
                       <tr>
                         <td scope="row">{{$activities->id}}</td>
                         <td>{{$activities->detail}}</td>
-                        <td>{{$activities->user_id}}</td>
-                        <td>{{$activities->status_id}}</td>
+                        <td>{{$activities->userName}}</td>
+                        <td>{{$activities->processStatus}}</td>
                         <td>{{$activities->created_at}}</td>
                       </tr>
                       @endforeach  

@@ -46,8 +46,12 @@ class ServiceController extends Controller
         $cities             = Cities::all();
         $districts          = District::all();
         $products           = Product::all();
-        $service_activities = ServiceActivities::where('service_id','=',$service->id)->get();
-
+        $service_activities = ServiceActivities::where('service_id', '=', $service->id)
+        ->join('users', 'users.id', '=', 'service_activities.user_id') 
+        ->join('product_status', 'product_status.id', '=', 'service_activities.status_id')
+        ->select('service_activities.*', 'users.name as userName', 'product_status.name as processStatus')
+        ->get();
+    
         return view('service.edit',compact('service','cities','districts','products','service_activities'));
     }
 
@@ -114,6 +118,15 @@ class ServiceController extends Controller
             $warrantyStatus->invoice_date = $service->invoice_date;
             $warrantyStatus->warranty_status_id = $service->warranty_status_id;
             $warrantyStatus->save();
+
+            // CİHAZ ARIZASINI SERVİS AKTİVİTELERİNE EKLEMESİ
+
+            $serviceActivities = new ServiceActivities();
+            $serviceActivities->service_id = $service->id;
+            $serviceActivities->detail = $service->fault_detail;
+            $serviceActivities->user_id = 1;
+            $serviceActivities->status_id = $service->process_status_id;
+            $serviceActivities->save();
 
             return response()->json(['success'=>true,'message'=>'Servis Kaydı Başarıyla Oluşturuldu !']);
         } catch (Exception $error) {
