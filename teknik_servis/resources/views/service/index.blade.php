@@ -144,7 +144,7 @@
                 data: 'action', 
                 name: 'action',
                 render: function(data, type, row) {
-                    return `<a href="/service/edit/${row.id}" class="btn btn-primary btn-sm">İncele</a> <button class='btn btn-danger btn-sm'>Sil</button>`;
+                    return `<a href="/service/edit/${row.id}" class="btn btn-primary btn-sm">İncele</a> <button class='btn btn-danger deleteRecord btn-sm' data-id=${row.id}>Sil</button>`;
                 }
             }
         ]
@@ -153,6 +153,39 @@
     $('#filterServiceButton').click(function(e){
       e.preventDefault();
       table.draw();
+    })
+    // Kayıt Silme İşlemi
+    $(document).on('click','.deleteRecord',function(e){
+      e.preventDefault();
+      let id = $(this).data('id');
+      Swal.fire({
+        title: 'Silmek istediğinizden emin misiniz?',
+        text: "Kaydı silmek istediğinizden emin misiniz?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Evet, sil!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: '/service/delete/',
+            type: 'POST',
+            data:{
+              id: id,
+              _token: '{{csrf_token()}}'
+            },
+            success: function(response) {
+              Swal.fire(
+                'Silindi!',
+                'Kaydınız başarıyla silindi.',
+                'success'
+              )
+              table.draw();
+            }
+          });
+        }
+      });
     })
 });
 

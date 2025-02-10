@@ -242,5 +242,25 @@ class ServiceController extends Controller
         }
     }
 
+
+    // SERVİS KAYDINI SİLME 
+
+    public function delete(Request $request )
+    {
+        try {
+            $service = Service::where('id','=',$request->input('id'))->first();
+
+            if (!$service) {
+                return response()->json(['success' => false,'message' => 'Servis bulunamadı!']);
+            }
+
+            $service->delete();
+
+            return response()->json(['success' => true,'message' => 'Servis Kaydı Silindi!']);
+        } catch (Exception $error) {
+            return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata'.''. $error->getMessage()]);
+        }
+    }
+
     
 }
