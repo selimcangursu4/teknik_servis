@@ -25,7 +25,7 @@
             </div>
             <div class="card-body">
                 @if($service->process_status_id == 1)
-                <button class="btn btn-success">Cihazı İşleme Al</button>
+                <button id="getProcessedButton" class="btn btn-success">Cihazı İşleme Al</button>
                 @endif
                 @if($service->process_status_id == 2)
                 <button class="btn btn-success">Cihazı Kontrole Al</button>
@@ -596,6 +596,61 @@
         // Teknik Servis Formu Yazdır
 
         // Cihazı İşleme Al Butonu 
+        $('#getProcessedButton').click(function(e){
+          e.preventDefault();
+          
+Swal.fire({
+  icon:"warning",
+  title: "Cihazı İşleme Almak İstediğinize Emin misiniz ?",
+  showDenyButton: false,
+  showCancelButton: true,
+  confirmButtonText: "Cihazı İşleme Al",
+}).then((result) => {
+  if (result.isConfirmed) {
+    let service_id = "{{$service->id}}";
+          console.log(service_id);
+          $.ajax({
+            type:"POST",
+            url:"{{route('service.getProcessed')}}",
+            data:{
+              _token:"{{ csrf_token() }}",
+              service_id:service_id
+            },
+            success:function(response){
+              if(response.success){
+                console.log(response.message);
+                Swal.fire({
+                icon:"success",
+                title: response.message,
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: "Tamam",
+                 }).then((result) => {
+                  if (result.isConfirmed) {
+                    location.reload();
+                  } 
+                });
+              }else{
+                console.log(response.message);
+                Swal.fire({
+                position: "top-center",
+                icon: "error",
+                title: response.message,
+                showConfirmButton: true,
+               });
+              }
+            }
+          })
+
+  } 
+});
+
+
+
+
+         
+
+        })
     })
     </script>
 @endsection

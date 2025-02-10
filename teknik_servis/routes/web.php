@@ -22,6 +22,7 @@ Route::prefix('/service')->group(function(){
     Route::post('/check-imei',[ServiceController::class,'checkImei'])->name('checkImei');
     Route::post('/getWarrantyAndInvoice',[ServiceController::class,'getWarrantyAndInvoice'])->name('getWarrantyAndInvoice');
     Route::post('/delete',[ServiceController::class,'delete'])->name('service.delete');
+    Route::post('/get/processing',[ServiceController::class,'getProcessed'])->name('service.getProcessed');
 
 });
 

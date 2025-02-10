@@ -120,7 +120,6 @@ class ServiceController extends Controller
             $warrantyStatus->save();
 
             // CİHAZ ARIZASINI SERVİS AKTİVİTELERİNE EKLEMESİ
-
             $serviceActivities = new ServiceActivities();
             $serviceActivities->service_id = $service->id;
             $serviceActivities->detail = $service->fault_detail;
@@ -129,7 +128,9 @@ class ServiceController extends Controller
             $serviceActivities->save();
 
             return response()->json(['success'=>true,'message'=>'Servis Kaydı Başarıyla Oluşturuldu !']);
+
         } catch (Exception $error) {
+
             return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata' . ' ' . $error->getMessage()]);
         }
     }
@@ -258,7 +259,7 @@ class ServiceController extends Controller
 
     // SERVİS KAYDINI SİLME 
 
-    public function delete(Request $request )
+    public function delete(Request $request)
     {
         try {
             $service = Service::where('id','=',$request->input('id'))->first();
@@ -274,6 +275,27 @@ class ServiceController extends Controller
             return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata'.''. $error->getMessage()]);
         }
     }
+
+    // CİHAZI İŞLEME AL BUTONU
+
+    public function getProcessed(Request $request)
+{
+     $service = Service::where('id','=',$request->input('service_id'))->update(['process_status_id'=>2]);
+
+     if($service){
+        $serviceActivitiesAdd = new ServiceActivities();
+        $serviceActivitiesAdd->service_id = $request->input('service_id');
+        $serviceActivitiesAdd->detail = 'Cihaz İşleme Alındı';
+        $serviceActivitiesAdd->user_id = 1;
+        $serviceActivitiesAdd->status_id = 2;
+        $serviceActivitiesAdd->save();
+
+        return response()->json(['success'=>true,'message'=>'Cihaz İşleme Alındı!']);
+     }else{
+        return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata']);
+     }
+}
+
 
     
 }
