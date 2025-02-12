@@ -328,6 +328,36 @@
                     }
                 })
             })
+            // Telefon Numarasını 10 Haneli Kısıtlama
+            $('#phone').change(function(e){
+                e.preventDefault();
+                let phone = $(this).val();
+                let formattedPhone = phone.replace(/[^0-9]/g, '');
+                if(formattedPhone.length >= 10){
+                    formattedPhone = formattedPhone.substr(0, 10);
+                }
+                $('#phone').val(formattedPhone);
+            })
+            // Alternatif Telefon Numarasını 10 Haneli Kısıtlama
+            $('#alternative_phone').change(function(e){
+                e.preventDefault();
+                let alternative_phone = $(this).val();
+                let formattedAlternativePhone = alternative_phone.replace(/[^0-9]/g, '');
+                if(formattedAlternativePhone.length >= 10){
+                    formattedAlternativePhone = formattedAlternativePhone.substr(0, 10);
+                }
+                $('#alternative_phone').val(formattedAlternativePhone);
+            })
+            // Sabit Telefon Numarasını 10 Haneli Kısıtlama
+            $('#land_phone').change(function(e){
+                e.preventDefault();
+                let land_phone = $(this).val();
+                let formattedLandPhone = land_phone.replace(/[^0-9]/g, '');
+                if(formattedLandPhone.length >= 10){
+                    formattedLandPhone = formattedLandPhone.substr(0, 10);
+                }
+                $('#land_phone').val(formattedLandPhone);
+            })
         })
     </script>
 @endsection
