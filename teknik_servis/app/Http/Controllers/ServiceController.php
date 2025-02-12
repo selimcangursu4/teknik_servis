@@ -9,6 +9,7 @@ use App\Models\FaultCategories;
 use App\Models\User;
 use App\Models\Cities;
 use App\Models\District;
+use App\Models\Payments;
 use App\Models\Service;
 use App\Models\ProductStatus;
 use App\Models\ServicePriorityRequest;
@@ -20,7 +21,6 @@ use Illuminate\Support\Facades\DB;
 
 class ServiceController extends Controller
 {
-
     // TEKNİK SERVİS KAYITLARI SAYFASI
     public function index(){
 
@@ -29,8 +29,6 @@ class ServiceController extends Controller
         $productStatus = ProductStatus::all();
         return view('service.index',compact('products','productStatus','users'));
     }
-
-
     // TEKNİK SERVİS KAYIT DETAY SAYFASI
     public function edit(Request $request , $id)
     {
@@ -54,8 +52,6 @@ class ServiceController extends Controller
     
         return view('service.edit',compact('service','cities','districts','products','service_activities'));
     }
-
-
     // SERVİS KAYDI DETAY BİLGİLERİNİ GÜNCELLEME
     public function update(Request $request){
         try {
@@ -76,7 +72,6 @@ class ServiceController extends Controller
             return response()->json(['success'=>true,'message'=>'Bilinmeyen Bir Hata' . ' ' . $error->getMessage()]);
         }
     }
-
     // YENİ SERVİS KAYDI EKLE SAYFASI
     public function create(){
         $users           = User::all();
@@ -85,7 +80,6 @@ class ServiceController extends Controller
         $faultCategories = FaultCategories::all();
         return view('service.create',compact('products','faultCategories','users','cities'));
     }
-
     // YENİ SERVİS KAYDI EKLE İŞLEMİ
     public function store(Request $request){
         try {
@@ -134,7 +128,6 @@ class ServiceController extends Controller
             return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata' . ' ' . $error->getMessage()]);
         }
     }
-    
     // ÜRÜNE GÖRE RENKLERİN LİSTELENMESİ
     public function getProductColors(Request $request){
         $product_id = $request->input('product_id');
@@ -150,7 +143,6 @@ class ServiceController extends Controller
     
         return response()->json(['districts' => $districts]);
     }
-
     // SERVİS ÜRÜNLERİNİN SERVERSİDE İLE DATATABLEDE LİSTELENMESİ
     public function fetch(Request $request)
     {
@@ -189,7 +181,6 @@ class ServiceController extends Controller
     
         return DataTables::of($query)->make(true);
     }
-
     // SERVİS ÖNCELİK TALEBİ OLUŞTUR
     public function priorityRequest(Request $request)
     {
@@ -209,7 +200,6 @@ class ServiceController extends Controller
             return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata' .''. $error->getMessage()]);
         }
     }
-    
     // SERVİSTEKİ ÜRÜNÜN FATURA VEYA GARANTİ DURUMUNU GÜNCELLEME
     public function updateWarrantyStatus(Request $request)
     {
@@ -228,7 +218,6 @@ class ServiceController extends Controller
             return response()->json(['success' => false, 'message' => 'Bilinmeyen Bir Hata: ' . $error->getMessage()]);
         }
     }
-    
     // İMEİ SORGULAMA - ÜRÜNÜN DAHA ÖNCE SERVİSE GELİP GELMEDİĞİ BİLGİSİ
     public function checkImei(Request $request)
     {
@@ -241,9 +230,7 @@ class ServiceController extends Controller
             return response()->json(['success' => false, 'message' =>'Bu Ürün İlk Defa Servise Gelmiştir!']);
         }
     }
-
     // İMEİ İLE ÜRÜNÜN GARANTİ VE FATURA BİLGİSİNİ GİRİŞ EKRANINDA GÖSTERİMİ
-
     public function getWarrantyAndInvoice(Request $request)
     {
         $warranty_record    = WarrantyRecord::where('imei','=',$request->input('imei'))->first();
@@ -255,10 +242,7 @@ class ServiceController extends Controller
             return response()->json(['success'=>true , 'warranty_status_id'=>$warranty_status_id,'invoice_date'=>$invoice_date]);
         }
     }
-
-
     // SERVİS KAYDINI SİLME 
-
     public function delete(Request $request)
     {
         try {
@@ -277,9 +261,8 @@ class ServiceController extends Controller
     }
 
     // CİHAZI İŞLEME AL BUTONU
-
     public function getProcessed(Request $request)
-{
+    {
      $service = Service::where('id','=',$request->input('service_id'))->update(['process_status_id'=>2]);
 
      if($service){
@@ -294,8 +277,142 @@ class ServiceController extends Controller
      }else{
         return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata']);
      }
-}
+    }
 
+    // CİHAZI KONTROLE AL BUTONU
+     public function takeControl(Request $request)
+     {
+          $service = Service::where('id','=',$request->input('serviceId'))->update(['process_status_id'=>3]);
+     
+          if($service){
+             $serviceActivitiesAdd = new ServiceActivities();
+             $serviceActivitiesAdd->service_id = $request->input('serviceId');
+             $serviceActivitiesAdd->detail = 'Cihaz Kontrole Alındı';
+             $serviceActivitiesAdd->user_id = 1;
+             $serviceActivitiesAdd->status_id = 3;
+             $serviceActivitiesAdd->save();
+     
+             return response()->json(['success'=>true,'message'=>'Cihaz Kontrole Alındı!']);
+
+          }else{
+            
+             return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata']);
+          }
+     }
+     
+    // CİHAZ KONTROL EDİLDİ 
+     public function controlChecked(Request $request)
+     {
+          $service = Service::where('id','=',$request->input('serviceId'))->update(['process_status_id'=>4]);
+     
+          if($service){
+             $serviceActivitiesAdd = new ServiceActivities();
+             $serviceActivitiesAdd->service_id = $request->input('serviceId');
+             $serviceActivitiesAdd->detail = 'Cihaz Kontrol Edildi';
+             $serviceActivitiesAdd->user_id = 1;
+             $serviceActivitiesAdd->status_id = 4;
+             $serviceActivitiesAdd->save();
+     
+             return response()->json(['success'=>true,'message'=>'Cihaz Kontrol Edildi !']);
+
+          }else{
+
+             return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata']);
+
+          }
+     }
+
+    // CİHAZI KARGOLA 
+    public function takeDelivery(Request $request)
+     {
+          $service = Service::where('id','=',$request->input('serviceId'))->update(['process_status_id'=>5,'completion_date'=>now()]);
+     
+          if($service){
+             $serviceActivitiesAdd = new ServiceActivities();
+             $serviceActivitiesAdd->service_id = $request->input('serviceId');
+             $serviceActivitiesAdd->detail = 'Cihaz Kargolandı';
+             $serviceActivitiesAdd->user_id = 1;
+             $serviceActivitiesAdd->status_id = 5;
+             $serviceActivitiesAdd->save();
+     
+             return response()->json(['success'=>true,'message'=>'Cihaz Başarıyla Kargolandı !']);
+
+          }else{
+
+             return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata']);
+          }
+     }
+     // ÖDEME OLUŞTUR 
+     public function createPayment(Request $request)
+     {
+        try {
+            // Ödemeler Tablosuna Eklenmesi
+            $payment                 =  new Payments();
+            $payment->service_id     = $request->input('serviceId');
+            $payment->detail         = $request->input('payment_detail');
+            $payment->price          = $request->input('amount');
+            $payment->status_id      = 6 ;
+            $payment->save();
+
+            // Servis Tablosuna Durum Güncellemesi
+            Service::where('id','=',$request->input('serviceId'))->update(['process_status_id'=>6]);
+
+            // Servis Etkinlikleri Tablosuna Eklenmesi
+            $serviceActivities = new ServiceActivities();
+            $serviceActivities->service_id = $request->input('serviceId');
+            $serviceActivities->detail = $request->input('payment_detail');
+            $serviceActivities->user_id = 1;
+            $serviceActivities->status_id = 6;
+            $serviceActivities->save();
+
+            return response()->json(['success'=>true,'message'=>'Ödeme Oluşturuldu!']);
+        } catch (Exception $error) {
+            return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata'.''. $error->getMessage()]);
+        }
+     }
+     // ÖDEMEYİ İPTAL ET 
+     public function cancelPayment(Request $request)
+     {
+        try {
+            // Ödeme Tablosunu Güncelle
+            Payments::where('id','=',$request->input('service_id'))->update(['status_id'=>7,'completed_date'=>now()]);
+
+            // Servis Tablosunda Durum Güncellemesi
+            Service::where('id','=',$request->input('service_id'))->update(['process_status_id'=>7]);
+
+            // Servis Etkinlikleri Tablosuna Eklenmesi
+            $serviceActivities = new ServiceActivities();
+            $serviceActivities->service_id = $request->input('service_id');
+            $serviceActivities->detail = 'Ödeme İptal Edildi';
+            $serviceActivities->user_id = 1;
+            $serviceActivities->status_id = 7;
+            $serviceActivities->save();
+
+            return response()->json(['success'=>true,'message'=>'Ödeme İptal Edildi!']);
+
+        } catch (Exception $error) {
+            return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata'.''. $error->getMessage()]);
+        }
+     }
+     // SORUN GÖRÜLEMEDİ 
+     public function noFault(Request $request){
+        try {
+           // Servis Tablosunu Güncelle
+           Service::where('id','=',$request->get('serviceId'))->update(['process_status_id'=>9]);
+           // Servis Etkinlikleri Tablosuna Eklenmesi
+           $serviceActivities = new ServiceActivities();
+           $serviceActivities->service_id = $request->get('serviceId');
+           $serviceActivities->detail = 'Sorun Görülemedi';
+           $serviceActivities->user_id = 1;
+           $serviceActivities->status_id = 9;
+           $serviceActivities->save();
+
+           return response()->json(['success'=>true,'message'=>'Sorun Görülemedi!']);
+        } catch (Exception $error) {
+          return response()->json(['success'=>false,'message'=>'Bilinmeyen Bir Hata'.''. $error->getMessage()]);
+        }
+
+     }
 
     
 }

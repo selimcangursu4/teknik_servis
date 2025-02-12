@@ -14,11 +14,13 @@ class SmsLogController extends Controller
     {
         try {
 
+            // SMS Gönderme İşlemleri Burada Yapılacak.
             $sms = new SmsLog();
             $sms->phone = $request->input('smsPhone');
             $sms->message = $request->input('smsMessage');
             $sms->save();
 
+            // SMS gönderildi Servis Activities Kaydı
             $activity = new ServiceActivities();
             $activity->service_id = $request->input('serviceId');
             $activity->detail = "Sms Gönderildi ! Gönderilen Sms İçeriği : " . $request->input('smsMessage');
